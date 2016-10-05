@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: YU3K+LEq8d0hC10rTqyL/CzXajMPIJeomM7LsjLNht+/0v7Zb3ImNHaeLYJHVfN+Cu6YzWpxdWwlN5ngj4zAuwyYEEHJOsPTExBp248JaKACMMkMQUXGR7Bomf2Lvf8ugi6lweo3nTkY2v7yPQmufFyYBmeyAgEAQa4o226zS0IaBHVPW7Q5RHpZeaD5jC8QGEbmNsGvICkScWM7070D07eoVh+0UewP51lcMmonCMucsubjtV61BeOZqCrCcme0+z0cb/hk94ORswTtjkNXt44jeyBLit0SrAJ0vEpTGVCUirElNJFWM0e+vQy8ofQyDsKBMJ9qBw2KOSwXh6zbUinCuO7VSq6n5tENWkV5RsaXnoRFD7UH8zx0R4/p18JwqKzr9mOmJ8EH/BMST+dWwIJCZVu7uOF39lMZ0cXe2P0rbwxPQZHSonEEq5FnbpMliZImpQCMp/mYx4nCmHIN9rb762/FniMwF6IzLI3K9H6VplJ7L8El+mOaLIe3L96sw81zolG21m4d7q7ERmJI9r2U9Vv/JyyAxlHPptb7wIvXNPlG0uypfmGfQW3a/QJbA9GAmmhsgKeF4/WlV8wfb3epfJFBX1KVl6PbU0TEPUYpiW/SsyV0+9Jfs10l2M/3Jbyz2TIlTd2xynmLIy865YIYewoOSp+1ixZjxzoKRTk=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Ziska--The-Problem-of-a-Wicked-Soul_5079
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
